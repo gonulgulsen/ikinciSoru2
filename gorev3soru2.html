@@ -1,0 +1,127 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="guess-section">
+            <h2>Tahminler</h2>
+            <div class="guess-inputs">
+                <input type="number" class="guess-input" min="1" max="49">
+                <input type="number" class="guess-input" min="1" max="49">
+                <input type="number" class="guess-input" min="1" max="49">
+                <input type="number" class="guess-input" min="1" max="49">
+                <input type="number" class="guess-input" min="1" max="49">
+                <input type="number" class="guess-input" min="1" max="49">
+                <button id="enterGuess">Tahmin Gir</button>
+                <p id="guessMessage" style="color: black;"></p>
+            </div>
+        </div>
+
+        <hr>
+        <button id="drawLottery" disabled>Kurayı Çek</button>
+        <div class="lottery-buttons">
+
+            <input type="number" class="lottery-input" disabled>
+            <input type="number" class="lottery-input" disabled>
+            <input type="number" class="lottery-input" disabled>
+            <input type="number" class="lottery-input" disabled>
+            <input type="number" class="lottery-input" disabled>
+            <input type="number" class="lottery-input" disabled>
+        </div>
+        <div class="result-section">
+            <p>Loto Sayıları</p>
+            <div class="lottery-results">
+
+            </div>
+
+            <div class="matched-numbers">
+
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const guessInputs = document.querySelectorAll(".guess-input");
+            const enterGuessButton = document.getElementById("enterGuess");
+            const drawLotteryButton = document.getElementById("drawLottery");
+            const lotteryResults = document.querySelector(".lottery-results");
+            const matchedNumbers = document.querySelector(".matched-numbers");
+            const lotteryButtonsContainer = document.querySelector(".lottery-buttons");
+            const guessMessage = document.getElementById("guessMessage");
+
+            let userGuesses = [];
+            let lotteryNumbers = [];
+
+            enterGuessButton.addEventListener("click", function () {
+                userGuesses = Array.from(guessInputs)
+                    .map(input => parseInt(input.value))
+                    .filter(guess => guess >= 1 && guess <= 49)
+                    .sort((a, b) => a - b);
+
+                if (userGuesses.length !== guessInputs.length) {
+                    guessMessage.style.color = "red";
+                    guessMessage.textContent = "Tüm alanları doldurmalısınız.";
+                    return;
+                }
+
+
+                userGuesses.sort((a, b) => a - b);
+
+
+                const duplicateGuesses = userGuesses.filter((guess, index) => userGuesses.indexOf(guess) !== index);
+                if (duplicateGuesses.length > 0) {
+                    guessMessage.style.color = "red";
+                    guessMessage.textContent = "Aynı sayıları tekrarlamayın.";
+                    return;
+                }
+
+                guessMessage.style.color = "black";
+                guessMessage.textContent = "Tüm tahminler girildi.";
+
+                enterGuessButton.disabled = true;
+                drawLotteryButton.disabled = false;
+            });
+
+            drawLotteryButton.addEventListener("click", function () {
+                lotteryNumbers = generateLotteryNumbers();
+                const lotteryInputs = document.querySelectorAll(".lottery-input");
+
+
+                for (let i = 0; i < lotteryNumbers.length; i++) {
+                    lotteryInputs[i].value = lotteryNumbers[i];
+                }
+
+
+                const matched = userGuesses.filter(guess => lotteryNumbers.includes(guess));
+                matchedNumbers.innerHTML = `Bilinen Sayılar: ${matched.join(", ")}`;
+                matchedNumbers.innerHTML += `<br>Kaç Adet Bilindi: ${matched.length}`;
+
+                enableLotteryButtons();
+            });
+
+            function generateLotteryNumbers() {
+                const numbers = new Set();
+                while (numbers.size < 6) {
+                    const randomNum = Math.floor(Math.random() * 49) + 1;
+                    numbers.add(randomNum);
+                }
+                return Array.from(numbers).sort((a, b) => a - b);
+            }
+
+            function enableLotteryButtons() {
+                const lotteryButtons = document.querySelectorAll(".lottery-buttons button");
+                lotteryButtons.forEach((button, index) => {
+                    button.textContent = lotteryNumbers[index];
+                    button.disabled = false;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
